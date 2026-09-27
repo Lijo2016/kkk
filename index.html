@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kamerás W / Wm mérő</title>
+<meta name="theme-color" content="#07111f">
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<title>3 digites kamerás wattmérő</title>
 
 <style>
 * {
@@ -15,7 +15,7 @@
 body {
   margin: 0;
   background: #07111f;
-  color: white;
+  color: #fff;
   font-family: system-ui, sans-serif;
 }
 
@@ -26,12 +26,12 @@ body {
 }
 
 h1 {
-  margin: 5px 0;
+  margin: 4px 0;
 }
 
 .subtitle {
-  color: #98aabd;
-  margin-bottom: 15px;
+  color: #9aabbd;
+  margin-bottom: 14px;
 }
 
 .camera {
@@ -39,9 +39,8 @@ h1 {
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: black;
+  background: #000;
   border-radius: 16px;
-  border: 2px solid #26394f;
 }
 
 video {
@@ -51,51 +50,57 @@ video {
 }
 
 /*
-  A kamera csak mutatja a multimétert.
-  Az OCR a teljes képet vizsgálja.
+  A felismerési terület.
 */
-.scan {
+.roi {
   position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 35%;
-  bottom: 35%;
 
-  border: 2px dashed #00ff88;
-  border-radius: 10px;
+  left: 15%;
+  right: 15%;
+  top: 35%;
+  height: 30%;
+
+  border: 3px solid #00ff88;
+  border-radius: 8px;
+
+  box-shadow:
+    0 0 0 9999px rgba(0,0,0,.30);
 
   pointer-events: none;
 }
 
-.scan-text {
+.roi-label {
   position: absolute;
-  top: 8px;
-  left: 10px;
+  left: 5px;
+  top: 5px;
 
-  background: rgba(0,0,0,.6);
-  color: #00ff88;
+  background: #00a85a;
+  color: white;
 
-  padding: 4px 8px;
-  border-radius: 5px;
+  padding: 3px 7px;
 
-  font-size: 12px;
+  font-size: 11px;
+  border-radius: 4px;
 }
 
 .status {
   margin-top: 10px;
   padding: 11px;
 
-  background: #101d2e;
   border-radius: 10px;
+
+  background: #101d2e;
 
   color: #aebdd0;
 }
 
 .main {
-  margin-top: 14px;
+  margin-top: 13px;
   padding: 20px;
 
   text-align: center;
+
+  border-radius: 16px;
 
   background:
     linear-gradient(
@@ -103,8 +108,6 @@ video {
       #10243b,
       #0b1727
     );
-
-  border-radius: 16px;
 }
 
 .label {
@@ -118,31 +121,31 @@ video {
   color: #5dffa8;
 }
 
-.unit {
-  color: #9aacc0;
-}
-
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    1fr 1fr;
+
   gap: 10px;
 
   margin-top: 10px;
 }
 
 .card {
-  padding: 15px;
+  padding: 14px;
 
   background: #101d2e;
 
-  border: 1px solid #22364e;
-
   border-radius: 13px;
+
+  border: 1px solid #22364e;
 }
 
 .value {
   font-size: 24px;
   font-weight: 700;
+
   margin-top: 5px;
 }
 
@@ -158,6 +161,7 @@ video {
 
 label {
   display: block;
+
   margin-bottom: 6px;
 
   color: #b9c7d6;
@@ -187,6 +191,7 @@ button {
   padding: 13px;
 
   border: 0;
+
   border-radius: 10px;
 
   background: #5dffa8;
@@ -194,6 +199,7 @@ button {
   color: #06120c;
 
   font-size: 16px;
+
   font-weight: 700;
 }
 
@@ -217,6 +223,10 @@ button.secondary {
 
   line-height: 1.5;
 }
+
+canvas {
+  display: none;
+}
 </style>
 </head>
 
@@ -224,10 +234,10 @@ button.secondary {
 
 <div class="app">
 
-<h1>⚡ Kamerás Wm mérő</h1>
+<h1>⚡ Kamerás wattmérő</h1>
 
 <div class="subtitle">
-A telefon kamerája leolvassa a multiméter kijelzőjét
+3 digites multiméter kijelzőjének felismerése
 </div>
 
 
@@ -240,10 +250,12 @@ A telefon kamerája leolvassa a multiméter kijelzőjét
     muted>
   </video>
 
-  <div class="scan">
-    <div class="scan-text">
-      MULTIMÉTER KIJELZŐ
+  <div class="roi">
+
+    <div class="roi-label">
+      3 DIGITES KIJELZŐ
     </div>
+
   </div>
 
 </div>
@@ -253,7 +265,7 @@ A telefon kamerája leolvassa a multiméter kijelzőjét
   id="status"
   class="status">
 
-Kamera nincs elindítva.
+Kamera indítása...
 
 </div>
 
@@ -272,7 +284,7 @@ Kamera nincs elindítva.
 
   </div>
 
-  <div class="unit">
+  <div class="label">
     W
   </div>
 
@@ -291,7 +303,7 @@ Kamera nincs elindítva.
       id="amps"
       class="value">
 
-      – A
+–
 
     </div>
 
@@ -301,14 +313,14 @@ Kamera nincs elindítva.
   <div class="card">
 
     <div class="label">
-      Wm
+      Összesített Wm
     </div>
 
     <div
       id="wm"
       class="value">
 
-      0 Wm
+0
 
     </div>
 
@@ -320,22 +332,45 @@ Kamera nincs elindítva.
 <div class="settings">
 
   <label>
-    Feszültség
+    Feszültség (V)
   </label>
 
   <input
     id="voltage"
     type="number"
     value="230"
-    step="1"
-    min="1">
+    step="1">
 
 
-  <button
-    id="start">
+  <label style="margin-top:12px">
+    Mértékegység
+  </label>
 
+  <select
+    id="unit"
+    style="
+      width:100%;
+      padding:12px;
+      background:#071321;
+      color:white;
+      border:1px solid #334b65;
+      border-radius:9px;
+      font-size:17px;
+    ">
+
+    <option value="A">
+      A
+    </option>
+
+    <option value="mA">
+      mA
+    </option>
+
+  </select>
+
+
+  <button id="start">
     📷 Kamera indítása
-
   </button>
 
 
@@ -352,31 +387,50 @@ Kamera nincs elindítva.
 
 <div class="help">
 
-<strong>Használat</strong><br><br>
+<strong>Beállítás</strong><br><br>
 
-1. Tedd a multiméter kijelzőjét jól látható helyre.<br><br>
+A zöld keretet igazítsd a multiméter
+3 digites kijelzőjére.<br><br>
 
-2. Irányítsd rá a telefon kameráját.<br><br>
+A program három számjegyet keres,
+és megpróbálja felismerni a
+7-szegmenses karaktereket.<br><br>
 
-3. A zöld keret legyen a multiméter számkijelzőjén.<br><br>
+Ha a multiméter például
+<strong>2.53 A</strong>-t mutat,
+230 V esetén:
 
-4. A program megpróbálja felismerni az amperértéket.<br><br>
+<strong>2,53 × 230 = 581,9 W</strong>.<br><br>
 
-5. A W számítása:
-<strong>W = A × V</strong><br><br>
+A Wm:
 
-6. A Wm folyamatosan gyűlik:
-<strong>Wm = W × eltelt perc</strong>.
+<strong>W × eltelt perc</strong>.
 
 </div>
 
 </div>
+
+
+<canvas id="canvas"></canvas>
 
 
 <script>
 
+/*
+==================================================
+  ALAPOK
+==================================================
+*/
+
 const video =
 document.getElementById("video");
+
+const canvas =
+document.getElementById("canvas");
+
+const ctx =
+canvas.getContext("2d");
+
 
 const status =
 document.getElementById("status");
@@ -384,7 +438,7 @@ document.getElementById("status");
 const amps =
 document.getElementById("amps");
 
-const w =
+const watts =
 document.getElementById("w");
 
 const wm =
@@ -392,6 +446,9 @@ document.getElementById("wm");
 
 const voltage =
 document.getElementById("voltage");
+
+const unit =
+document.getElementById("unit");
 
 const start =
 document.getElementById("start");
@@ -404,44 +461,64 @@ let stream = null;
 
 let running = false;
 
-
-/*
-  Legutóbb elfogadott amperérték.
-*/
-
 let currentAmps = null;
-
-
-/*
-  Összesített Wm.
-*/
 
 let totalWm = 0;
 
+let lastEnergyTime = null;
+
 
 /*
-  Az előző mérés időpontja.
+  Stabilizáló puffer.
 */
 
-let lastTime = null;
+let readings = [];
 
 
 /*
-  OCR feldolgozás folyamatban van-e.
+==================================================
+  7-SZEGMENS MINTÁK
+==================================================
+
+      A
+     ---
+  F |   | B
+     -G-
+  E |   | C
+     ---
+      D
+
 */
 
-let ocrRunning = false;
+const DIGITS = {
+
+  "1111110": "0",
+
+  "0110000": "1",
+
+  "1101101": "2",
+
+  "1111001": "3",
+
+  "0110011": "4",
+
+  "1011011": "5",
+
+  "1011111": "6",
+
+  "1110000": "7",
+
+  "1111111": "8",
+
+  "1111011": "9"
+
+};
 
 
 /*
-  OCR időköze.
-*/
-
-const OCR_INTERVAL = 700;
-
-
-/*
-  Kamera indítása
+==================================================
+  KAMERA
+==================================================
 */
 
 async function startCamera() {
@@ -473,46 +550,35 @@ async function startCamera() {
       });
 
 
-    video.srcObject = stream;
+    video.srcObject =
+      stream;
+
 
     await video.play();
 
+
     running = true;
+
 
     start.textContent =
       "⏹ Kamera leállítása";
 
+
     status.textContent =
-      "Kamera működik – keresem az amperértéket...";
+      "Kamera működik – keresem a kijelzőt.";
 
 
-    /*
-      Wm időmérés indítása.
-    */
-
-    lastTime =
+    lastEnergyTime =
       performance.now();
 
 
     requestAnimationFrame(
-      updateEnergy
-    );
-
-
-    /*
-      OCR ciklus.
-    */
-
-    setTimeout(
-      runOCR,
-      500
+      mainLoop
     );
 
   }
 
   catch (error) {
-
-    console.error(error);
 
     status.textContent =
       "Kamera hiba: " +
@@ -523,29 +589,31 @@ async function startCamera() {
 }
 
 
-/*
-  Kamera leállítása
-*/
-
 function stopCamera() {
 
   running = false;
+
 
   if (stream) {
 
     stream
     .getTracks()
     .forEach(
-      track => track.stop()
+      track =>
+        track.stop()
     );
 
     stream = null;
   }
 
-  video.srcObject = null;
+
+  video.srcObject =
+    null;
+
 
   start.textContent =
     "📷 Kamera indítása";
+
 
   status.textContent =
     "Kamera leállítva.";
@@ -554,7 +622,779 @@ function stopCamera() {
 
 
 /*
-  A Wm folyamatos integrálása.
+==================================================
+  KÉPFELDOLGOZÁS
+==================================================
+*/
+
+function processDisplay() {
+
+  if (
+    !video.videoWidth ||
+    !video.videoHeight
+  ) {
+
+    return null;
+
+  }
+
+
+  const vw =
+    video.videoWidth;
+
+  const vh =
+    video.videoHeight;
+
+
+  /*
+    A zöld keretnek megfelelő terület.
+  */
+
+  const x =
+    vw * 0.15;
+
+  const y =
+    vh * 0.35;
+
+  const width =
+    vw * 0.70;
+
+  const height =
+    vh * 0.30;
+
+
+  /*
+    Nagy felbontású belső kép.
+  */
+
+  canvas.width = 900;
+
+  canvas.height = 300;
+
+
+  ctx.drawImage(
+
+    video,
+
+    x,
+    y,
+    width,
+    height,
+
+    0,
+    0,
+    900,
+    300
+
+  );
+
+
+  return ctx.getImageData(
+    0,
+    0,
+    900,
+    300
+  );
+
+}
+
+
+/*
+==================================================
+  FÉNYESSÉG
+==================================================
+*/
+
+function brightness(
+  r,
+  g,
+  b
+) {
+
+  return (
+    r * 0.299 +
+    g * 0.587 +
+    b * 0.114
+  );
+
+}
+
+
+/*
+==================================================
+  KÉP BINARIZÁLÁSA
+==================================================
+*/
+
+function makeBinary(
+  image
+) {
+
+  const data =
+    image.data;
+
+  const result =
+    new Uint8Array(
+      image.width *
+      image.height
+    );
+
+
+  /*
+    Először kiszámoljuk
+    az átlagfényességet.
+  */
+
+  let sum = 0;
+
+  let count = 0;
+
+
+  for (
+    let i = 0;
+    i < data.length;
+    i += 16
+  ) {
+
+    sum +=
+      brightness(
+        data[i],
+        data[i + 1],
+        data[i + 2]
+      );
+
+    count++;
+
+  }
+
+
+  const average =
+    sum / count;
+
+
+  /*
+    Adaptív küszöb.
+  */
+
+  const threshold =
+    average * 1.15;
+
+
+  for (
+    let y = 0;
+    y < image.height;
+    y++
+  ) {
+
+    for (
+      let x = 0;
+      x < image.width;
+      x++
+    ) {
+
+      const p =
+        (
+          y *
+          image.width +
+          x
+        );
+
+
+      const i =
+        p * 4;
+
+
+      const b =
+        brightness(
+          data[i],
+          data[i + 1],
+          data[i + 2]
+        );
+
+
+      result[p] =
+        b > threshold
+        ? 1
+        : 0;
+
+    }
+
+  }
+
+
+  return {
+    data: result,
+    width: image.width,
+    height: image.height
+  };
+
+}
+
+
+/*
+==================================================
+  EGY SZEGMENS MÉRÉSE
+==================================================
+*/
+
+function segmentActive(
+  binary,
+  x1,
+  y1,
+  x2,
+  y2
+) {
+
+  let active = 0;
+
+  let total = 0;
+
+
+  for (
+    let y = y1;
+    y < y2;
+    y++
+  ) {
+
+    for (
+      let x = x1;
+      x < x2;
+      x++
+    ) {
+
+      const index =
+        y *
+        binary.width +
+        x;
+
+
+      if (
+        binary.data[index]
+      ) {
+
+        active++;
+
+      }
+
+
+      total++;
+
+    }
+
+  }
+
+
+  return (
+    active /
+    total
+  ) > 0.32;
+
+}
+
+
+/*
+==================================================
+  EGY DIGIT FELISMERÉSE
+==================================================
+*/
+
+function recognizeDigit(
+  binary,
+  left,
+  right
+) {
+
+  const w =
+    right - left;
+
+  const h =
+    binary.height;
+
+
+  /*
+    7 szegmens pozíciók.
+  */
+
+  const sx =
+    Math.floor(w * 0.25);
+
+  const ex =
+    Math.floor(w * 0.75);
+
+
+  const topY =
+    Math.floor(h * 0.08);
+
+  const top2 =
+    Math.floor(h * 0.25);
+
+
+  const midY =
+    Math.floor(h * 0.44);
+
+  const mid2 =
+    Math.floor(h * 0.56);
+
+
+  const bottomY =
+    Math.floor(h * 0.75);
+
+  const bottom2 =
+    Math.floor(h * 0.92);
+
+
+  /*
+    Függőleges szegmensek.
+  */
+
+  const leftX =
+    Math.floor(w * 0.05) +
+    left;
+
+  const leftX2 =
+    Math.floor(w * 0.28) +
+    left;
+
+
+  const rightX =
+    Math.floor(w * 0.72) +
+    left;
+
+  const rightX2 =
+    Math.floor(w * 0.95) +
+    left;
+
+
+  /*
+    A B C D E F G
+  */
+
+  const A =
+    segmentActive(
+      binary,
+      left + sx,
+      topY,
+      left + ex,
+      top2
+    );
+
+
+  const B =
+    segmentActive(
+      binary,
+      rightX,
+      top2,
+      rightX2,
+      mid2
+    );
+
+
+  const C =
+    segmentActive(
+      binary,
+      rightX,
+      midY,
+      rightX2,
+      bottomY
+    );
+
+
+  const D =
+    segmentActive(
+      binary,
+      left + sx,
+      bottomY,
+      left + ex,
+      bottom2
+    );
+
+
+  const E =
+    segmentActive(
+      binary,
+      leftX,
+      midY,
+      leftX2,
+      bottomY
+    );
+
+
+  const F =
+    segmentActive(
+      binary,
+      leftX,
+      top2,
+      leftX2,
+      mid2
+    );
+
+
+  const G =
+    segmentActive(
+      binary,
+      left + sx,
+      midY * 0.91,
+      left + ex,
+      midY * 1.09
+    );
+
+
+  const bits = [
+
+    A ? 1 : 0,
+    B ? 1 : 0,
+    C ? 1 : 0,
+    D ? 1 : 0,
+    E ? 1 : 0,
+    F ? 1 : 0,
+    G ? 1 : 0
+
+  ].join("");
+
+
+  return DIGITS[bits] || null;
+
+}
+
+
+/*
+==================================================
+  HÁROM DIGIT
+==================================================
+*/
+
+function recognizeThreeDigits(
+  binary
+) {
+
+  const width =
+    binary.width;
+
+
+  const digitWidth =
+    width / 3;
+
+
+  let result = "";
+
+
+  for (
+    let i = 0;
+    i < 3;
+    i++
+  ) {
+
+    const left =
+      Math.floor(
+        i * digitWidth
+      );
+
+
+    const right =
+      Math.floor(
+        (i + 1) *
+        digitWidth
+      );
+
+
+    const digit =
+      recognizeDigit(
+        binary,
+        left,
+        right
+      );
+
+
+    if (
+      digit === null
+    ) {
+
+      return null;
+
+    }
+
+
+    result +=
+      digit;
+
+  }
+
+
+  return result;
+
+}
+
+
+/*
+==================================================
+  TIZEDESPONT KERESÉSE
+==================================================
+*/
+
+function findDecimal(
+  image
+) {
+
+  /*
+    Egyszerű becslés.
+
+    A pont általában a
+    harmadik karakter jobb alsó
+    részén vagy a második karakter
+    jobb alsó részén van.
+  */
+
+  /*
+    Alapértelmezés:
+    nincs tizedespont.
+  */
+
+  return 0;
+
+}
+
+
+/*
+==================================================
+  STABILIZÁLÁS
+==================================================
+*/
+
+function stabilize(
+  value
+) {
+
+  readings.push(value);
+
+
+  if (
+    readings.length > 7
+  ) {
+
+    readings.shift();
+
+  }
+
+
+  /*
+    Ha legalább 4 azonos érték
+    van az utolsó minták között,
+    elfogadjuk.
+  */
+
+  const counts = {};
+
+
+  for (
+    const v of readings
+  ) {
+
+    counts[v] =
+      (counts[v] || 0) + 1;
+
+  }
+
+
+  let best = null;
+
+  let bestCount = 0;
+
+
+  for (
+    const key in counts
+  ) {
+
+    if (
+      counts[key] >
+      bestCount
+    ) {
+
+      best = key;
+
+      bestCount =
+        counts[key];
+
+    }
+
+  }
+
+
+  if (
+    bestCount >= 3
+  ) {
+
+    return Number(best);
+
+  }
+
+
+  return null;
+
+}
+
+
+/*
+==================================================
+  FŐ CIKLUS
+==================================================
+*/
+
+let lastScan =
+  0;
+
+
+function mainLoop(
+  timestamp
+) {
+
+  if (!running) {
+    return;
+  }
+
+
+  /*
+    Nem dolgozzuk fel minden
+    képkockát.
+  */
+
+  if (
+    timestamp - lastScan >
+    120
+  ) {
+
+    lastScan =
+      timestamp;
+
+
+    try {
+
+      const image =
+        processDisplay();
+
+
+      if (image) {
+
+        const binary =
+          makeBinary(
+            image
+          );
+
+
+        const digits =
+          recognizeThreeDigits(
+            binary
+          );
+
+
+        if (digits !== null) {
+
+          const stable =
+            stabilize(
+              digits
+            );
+
+
+          if (
+            stable !== null
+          ) {
+
+            updateMeasurement(
+              stable
+            );
+
+          }
+
+        }
+
+      }
+
+    }
+
+    catch (error) {
+
+      console.error(
+        error
+      );
+
+    }
+
+  }
+
+
+  requestAnimationFrame(
+    mainLoop
+  );
+
+}
+
+
+/*
+==================================================
+  MÉRÉS
+==================================================
+*/
+
+function updateMeasurement(
+  value
+) {
+
+  /*
+    mA esetén A-ra alakítunk.
+  */
+
+  let amper = value;
+
+
+  if (
+    unit.value === "mA"
+  ) {
+
+    amper =
+      value / 1000;
+
+  }
+
+
+  currentAmps =
+    amper;
+
+
+  amps.textContent =
+    format(
+      amper
+    ) +
+    " A";
+
+
+  const v =
+    Number(
+      voltage.value
+    );
+
+
+  const currentW =
+    amper * v;
+
+
+  watts.textContent =
+    format(
+      currentW
+    );
+
+
+  status.textContent =
+    "✓ Stabil mérés: " +
+    value +
+    " " +
+    unit.value;
+
+}
+
+
+/*
+==================================================
+  Wm INTEGRÁLÁS
+==================================================
 */
 
 function updateEnergy() {
@@ -568,13 +1408,16 @@ function updateEnergy() {
     performance.now();
 
 
-  if (lastTime !== null &&
-      currentAmps !== null) {
+  if (
+    lastEnergyTime !== null &&
+    currentAmps !== null
+  ) {
 
-
-    const elapsedMinutes =
-      (now - lastTime) /
-      60000;
+    const minutes =
+      (
+        now -
+        lastEnergyTime
+      ) / 60000;
 
 
     const v =
@@ -593,17 +1436,20 @@ function updateEnergy() {
 
     totalWm +=
       currentW *
-      elapsedMinutes;
+      minutes;
 
 
     wm.textContent =
-      formatNumber(totalWm) +
+      format(
+        totalWm
+      ) +
       " Wm";
 
   }
 
 
-  lastTime = now;
+  lastEnergyTime =
+    now;
 
 
   requestAnimationFrame(
@@ -614,370 +1460,44 @@ function updateEnergy() {
 
 
 /*
-  OCR kép készítése.
+==================================================
+  FORMÁZÁS
+==================================================
 */
 
-function captureFrame() {
+function format(
+  number
+) {
 
   if (
-    !video.videoWidth ||
-    !video.videoHeight
-  ) {
-    return null;
-  }
-
-
-  const canvas =
-    document.createElement(
-      "canvas"
-    );
-
-
-  /*
-    A kijelző környékét
-    nagyítva adjuk az OCR-nek.
-  */
-
-  const width =
-    video.videoWidth;
-
-  const height =
-    video.videoHeight;
-
-
-  const x =
-    width * 0.08;
-
-  const y =
-    height * 0.35;
-
-  const cropWidth =
-    width * 0.84;
-
-  const cropHeight =
-    height * 0.30;
-
-
-  canvas.width =
-    1000;
-
-  canvas.height =
-    360;
-
-
-  const ctx =
-    canvas.getContext("2d");
-
-
-  ctx.drawImage(
-
-    video,
-
-    x,
-    y,
-    cropWidth,
-    cropHeight,
-
-    0,
-    0,
-    1000,
-    360
-
-  );
-
-
-  return canvas;
-
-}
-
-
-/*
-  OCR.
-*/
-
-async function runOCR() {
-
-  if (
-    !running ||
-    ocrRunning
+    !Number.isFinite(
+      number
+    )
   ) {
 
-    if (running) {
-      setTimeout(
-        runOCR,
-        OCR_INTERVAL
-      );
-    }
-
-    return;
-  }
-
-
-  ocrRunning = true;
-
-
-  try {
-
-    const canvas =
-      captureFrame();
-
-
-    if (!canvas) {
-      return;
-    }
-
-
-    /*
-      Csak számokat és pontot
-      várunk az OCR-től.
-    */
-
-    const result =
-      await Tesseract.recognize(
-
-        canvas,
-
-        "eng",
-
-        {
-
-          logger: message => {
-
-            /*
-              OCR folyamat nem kerül
-              ki a felületre.
-            */
-
-          },
-
-          tessedit_char_whitelist:
-            "0123456789.,"
-
-        }
-
-      );
-
-
-    const text =
-      result.data.text;
-
-
-    const value =
-      extractAmps(text);
-
-
-    if (
-      value !== null &&
-      isReasonable(value)
-    ) {
-
-      currentAmps =
-        value;
-
-
-      amps.textContent =
-        formatNumber(value) +
-        " A";
-
-
-      const v =
-        Number(
-          voltage.value
-        );
-
-
-      const currentW =
-        value * v;
-
-
-      w.textContent =
-        formatNumber(
-          currentW
-        );
-
-
-      status.textContent =
-        "✓ Multiméter leolvasva";
-
-    }
-
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "OCR:",
-      error
-    );
-
-  }
-
-  finally {
-
-    ocrRunning = false;
-
-
-    if (running) {
-
-      setTimeout(
-        runOCR,
-        OCR_INTERVAL
-      );
-
-    }
-
-  }
-
-}
-
-
-/*
-  Szám keresése az OCR szövegben.
-*/
-
-function extractAmps(text) {
-
-  if (!text) {
-    return null;
-  }
-
-
-  /*
-    Vessző -> pont
-  */
-
-  let clean =
-    text
-    .replace(
-      /,/g,
-      "."
-    );
-
-
-  /*
-    Csak a számokat
-    és tizedespontot tartjuk meg.
-  */
-
-  const matches =
-    clean.match(
-      /\d+(?:\.\d+)?/g
-    );
-
-
-  if (!matches ||
-      matches.length === 0) {
-
-    return null;
-  }
-
-
-  /*
-    Ha több számot lát,
-    a leginkább használható
-    értéket keressük.
-  */
-
-  const numbers =
-    matches
-    .map(Number)
-    .filter(
-      n => Number.isFinite(n)
-    );
-
-
-  if (!numbers.length) {
-    return null;
-  }
-
-
-  /*
-    Első ésszerű érték.
-  */
-
-  for (const n of numbers) {
-
-    if (
-      n >= 0.001 &&
-      n <= 1000
-    ) {
-
-      return n;
-
-    }
-
-  }
-
-
-  return null;
-
-}
-
-
-/*
-  Ésszerűség ellenőrzése.
-*/
-
-function isReasonable(value) {
-
-  if (
-    !Number.isFinite(value)
-  ) {
-    return false;
-  }
-
-
-  return (
-    value >= 0.001 &&
-    value <= 1000
-  );
-
-}
-
-
-/*
-  Formázás.
-*/
-
-function formatNumber(value) {
-
-  if (
-    !Number.isFinite(value)
-  ) {
     return "–";
-  }
-
-
-  if (
-    Math.abs(value) < 100
-  ) {
-
-    return value
-      .toFixed(3)
-      .replace(
-        /0+$/,
-        ""
-      )
-      .replace(
-        /\.$/,
-        ""
-      );
 
   }
 
 
-  return Math.round(
-    value
-  ).toLocaleString(
-    "hu-HU"
-  );
+  return number
+    .toFixed(3)
+    .replace(
+      /0+$/,
+      ""
+    )
+    .replace(
+      /\.$/,
+      ""
+    );
 
 }
 
 
 /*
-  Gombok.
+==================================================
+  GOMBOK
+==================================================
 */
 
 start.addEventListener(
@@ -988,9 +1508,15 @@ start.addEventListener(
 
       stopCamera();
 
-    } else {
+    }
+
+    else {
 
       startCamera();
+
+      requestAnimationFrame(
+        updateEnergy
+      );
 
     }
 
@@ -1007,7 +1533,8 @@ reset.addEventListener(
     wm.textContent =
       "0 Wm";
 
-    lastTime =
+
+    lastEnergyTime =
       running
       ? performance.now()
       : null;
@@ -1016,30 +1543,20 @@ reset.addEventListener(
 );
 
 
-/*
-  Ha a feszültség változik,
-  az aktuális W azonnal frissül.
-*/
-
 voltage.addEventListener(
   "input",
   () => {
 
-    if (currentAmps !== null) {
+    if (
+      currentAmps !== null
+    ) {
 
-      const v =
-        Number(
-          voltage.value
-        );
-
-
-      const currentW =
-        currentAmps * v;
-
-
-      w.textContent =
-        formatNumber(
-          currentW
+      watts.textContent =
+        format(
+          currentAmps *
+          Number(
+            voltage.value
+          )
         );
 
     }
